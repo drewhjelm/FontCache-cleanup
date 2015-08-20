@@ -18,3 +18,6 @@ foreach ($file in $fontCacheFiles) {
 	continue;
 	} 
 }
+
+$recycleBin = (New-Object -ComObject Shell.Application).NameSpace(0xa)
+$recycleBin.items() | foreach { rm $_.path -force -recurse }
