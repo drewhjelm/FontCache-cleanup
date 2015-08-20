@@ -1,6 +1,6 @@
 #get the Windows Font Cache Service and restart it. Don't try to restart before stopping otherwise it doesn't work well.
 
-Write-Output "Stopping the Windows Font Cache Service"
+Write-Output "Step 1 of 4: Stopping the Windows Font Cache Service"
 
 $svc = Get-Service fontcache
 
@@ -8,7 +8,7 @@ Stop-Service fontcache
 
 $svc.WaitForStatus('Stopped')
 
-Write-Output "Starting the Windows Font Cache Service"
+Write-Output "Step 2 of 4: Starting the Windows Font Cache Service"
 
 Start-Service fontcache
 
@@ -24,7 +24,7 @@ $totalFileSizeDeleted = 0
 $totalFilesDeleted = 0
 $totalErrorFiles = 0
 
-Write-Output "Deleting FontCache-S-*.dat files."
+Write-Output "Step 3 of 4: Deleting FontCache-S-*.dat files."
 
 foreach ($file in $fontCacheFiles) { 
 	try { 
@@ -45,7 +45,7 @@ foreach ($file in $fontCacheFiles) {
 
 #Empty the recycle bin to clear additional space.
 
-Write-Output "Emptying Recycle Bin."
+Write-Output "Step 4 of 4: Emptying Recycle Bin."
 
 $recycleBin = (New-Object -ComObject Shell.Application).NameSpace(0xa)
 $recycleBin.items() | foreach { rm $_.path -force -recurse }
