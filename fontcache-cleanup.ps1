@@ -16,16 +16,30 @@ $fontCacheFiles = Get-ChildItem "C:\Windows\ServiceProfiles\LocalService\AppData
 
 #delete all the files that can be deleted. Many of the files will be locked if users are still connected, so it's best to skip over them.
 
+$totalFileSizeDeleted = 0
+$totalFilesDeleted = 0
+$totalErrorFiles = 0
+
 foreach ($file in $fontCacheFiles) { 
 	try { 
-		Remove-Item $file.fullname -Force -ErrorAction silentlyContinue; 
+		$ErrorActionPreference = "Stop";
+		$fileSize = $file.length
+		Remove-Item $file.fullname -Force; 
+		$totalFileSizeDeleted += $fileSize;
+		$totalFilesDeleted++;
 	} 
 	catch {
-	continue;
+		Write-Output "Error deleting $file because it is in use by another process."
+		$totalErrorFiles++;
 	} 
+	finally {
+		$ErrorActionPreference = "Continue"; 
+	}
 }
 
 #Empty the recycle bin to clear additional space.
 
 $recycleBin = (New-Object -ComObject Shell.Application).NameSpace(0xa)
 $recycleBin.items() | foreach { rm $_.path -force -recurse }
+
+Write-Output "Total Files Deleted: $totalFilesDeleted. Total Space Freed: $totalFileSizeDeleted. Total Files Not Deleted: $totalErrorFiles."
